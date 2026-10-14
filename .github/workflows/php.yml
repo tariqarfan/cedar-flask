@@ -81,6 +81,7 @@ jobs:
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_TLS_HOSTNAME: ${{ secrets.FTP_TLS_HOSTNAME }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_DIRECTORY: ${{ secrets.FTP_DIRECTORY }}

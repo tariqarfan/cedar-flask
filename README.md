@@ -18,6 +18,7 @@ Repository secrets required:
 | --- | --- |
 | `FTP_SERVER` | Exact FTP hostname from hPanel |
 | `FTP_PORT` | Usually `21` |
+| `FTP_TLS_HOSTNAME` | Certificate hostname when connecting by IP; this server presents `hstgr.io` |
 | `FTP_USERNAME` | FTP login |
 | `FTP_PASSWORD` | FTP password |
 | `FTP_DIRECTORY` | Existing destination relative to FTP account login directory; use `.` if the account already opens in `public_html/kabir` |

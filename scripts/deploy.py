@@ -10,6 +10,9 @@ for name in ('FTP_SERVER', 'FTP_USERNAME', 'FTP_PASSWORD', 'FTP_DIRECTORY'):
 root = Path('public')
 ftp = ftplib.FTP_TLS(context=ssl.create_default_context(), timeout=30)
 ftp.connect(os.environ['FTP_SERVER'], int(os.getenv('FTP_PORT', '21')))
+# Hostinger's shared FTP certificate uses hstgr.io rather than the server IP.
+# Certificate chain and hostname verification remain enabled.
+ftp.host = os.getenv('FTP_TLS_HOSTNAME') or os.environ['FTP_SERVER']
 ftp.login(os.environ['FTP_USERNAME'], os.environ['FTP_PASSWORD'])
 ftp.prot_p()
 # This path is relative to the FTP account's login directory; never guess it.
