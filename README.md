@@ -1,6 +1,6 @@
 # Cedar PHP + MySQL
 
-A PHP 8.3 application for regular Hostinger hosting, with the existing blue login/registration pages, a protected dashboard, live local date/time, and logout. No Python, Node.js, Composer, or compilation is required on the server.
+A PHP 8.3 application for regular Hostinger hosting, with the cedar-green login/registration pages, a protected dashboard, live local date/time, and logout. No Python, Node.js, Composer, or compilation is required on the server.
 
 ## Hosting
 
@@ -47,4 +47,4 @@ php tests/password.php
 find public -name '*.php' -exec php -l {} \;
 ```
 
-Password recovery sends a blue-themed HTML email with a plain-text alternative via Gmail SMTP, using PHPMailer. Configure `SMTP_USERNAME` and `SMTP_PASSWORD` as repository secrets. Links expire in 30 minutes, are single-use, and invalidate prior sign-ins after a successful reset. The app also creates `cedar_password_resets`. New passwords accept 8–72 bytes to match PHP's default bcrypt limit. The live clock uses the visitor's browser timezone. The old static `dist/` and Sites manifest are historical files and are not deployed by this workflow.
+Password recovery sends a cedar-green HTML email with a plain-text alternative via Gmail SMTP, using PHPMailer. Configure `SMTP_USERNAME` and `SMTP_PASSWORD` as repository secrets. Links expire in 30 minutes, are single-use, and invalidate prior sign-ins after a successful reset. The app also creates `cedar_password_resets`. New passwords accept 8–72 bytes to match PHP's default bcrypt limit. The live clock uses the visitor's browser timezone. The old static `dist/` and Sites manifest are historical files and are not deployed by this workflow.

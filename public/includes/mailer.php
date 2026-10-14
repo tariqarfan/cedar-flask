@@ -9,20 +9,20 @@ function reset_email_html(string $name, string $link): string {
     $link = htmlspecialchars($link, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     return <<<HTML
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Reset your Cedar password</title></head>
-<body style="margin:0;background:#f5f8ff;font-family:Arial,sans-serif;color:#203653;">
+<body style="margin:0;background:#f8f9f6;font-family:Arial,sans-serif;color:#263c33;">
 <div style="display:none;max-height:0;overflow:hidden;">Your secure password reset link expires in 30 minutes.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 16px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #d9e2f1;border-radius:12px;overflow:hidden;">
-<tr><td style="background:#12316b;padding:28px 32px;color:#ffffff;font-size:28px;font-weight:bold;">c. &nbsp;cedar</td></tr>
-<tr><td style="padding:32px;"><p style="color:#607ba4;font-size:11px;letter-spacing:2px;">YOUR ACCOUNT, PROTECTED</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #dce1d8;border-radius:12px;overflow:hidden;">
+<tr><td style="background:#183c30;padding:28px 32px;color:#ffffff;font-size:28px;font-weight:bold;">c. &nbsp;cedar</td></tr>
+<tr><td style="padding:32px;"><p style="color:#566a50;font-size:11px;letter-spacing:2px;">YOUR ACCOUNT, PROTECTED</p>
 <h1 style="font-size:28px;line-height:1.3;margin:16px 0;">A fresh start for your password.</h1>
 <p style="font-size:15px;line-height:1.7;">Hi {$name},</p>
-<p style="font-size:15px;line-height:1.7;color:#61738e;">We received a request to reset your Cedar password. Use the button below to choose a new one.</p>
-<table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#2563eb" style="border-radius:7px;"><a href="{$link}" style="display:inline-block;padding:15px 24px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;">Reset my password &rarr;</a></td></tr></table>
-<p style="font-size:13px;line-height:1.7;color:#61738e;margin-top:24px;">This link expires in <strong>30 minutes</strong> and can only be used once. If you didn’t request a reset, you can ignore this email. Your password will stay the same.</p>
-<hr style="border:0;border-top:1px solid #d9e2f1;margin:24px 0;">
-<p style="font-size:12px;color:#61738e;">Button not working? Copy this link into your browser:</p><p style="font-size:12px;line-height:1.6;word-break:break-all;"><a href="{$link}" style="color:#2563eb;">{$link}</a></p>
-</td></tr><tr><td style="padding:20px 32px;background:#eaf2ff;color:#61738e;font-size:12px;">Cedar &middot; A simpler way forward.</td></tr></table></td></tr></table></body></html>
+<p style="font-size:15px;line-height:1.7;color:#5c6c5c;">We received a request to reset your Cedar password. Use the button below to choose a new one.</p>
+<table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#345d47" style="border-radius:7px;"><a href="{$link}" style="display:inline-block;padding:15px 24px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;">Reset my password &rarr;</a></td></tr></table>
+<p style="font-size:13px;line-height:1.7;color:#5c6c5c;margin-top:24px;">This link expires in <strong>30 minutes</strong> and can only be used once. If you didn’t request a reset, you can ignore this email. Your password will stay the same.</p>
+<hr style="border:0;border-top:1px solid #dce1d8;margin:24px 0;">
+<p style="font-size:12px;color:#5c6c5c;">Button not working? Copy this link into your browser:</p><p style="font-size:12px;line-height:1.6;word-break:break-all;"><a href="{$link}" style="color:#345d47;">{$link}</a></p>
+</td></tr><tr><td style="padding:20px 32px;background:#edf3e9;color:#5c6c5c;font-size:12px;">Cedar &middot; A simpler way forward.</td></tr></table></td></tr></table></body></html>
 HTML;
 }
 function send_reset_email(string $email, string $name, string $link): void {

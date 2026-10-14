@@ -17,14 +17,14 @@ The user has authorized automatic publication after code changes: run the releva
 
 ## Features and design
 
-- Blue login and registration pages, password visibility toggles, browser and server form validation.
+- Cedar-green login and registration pages, password visibility toggles, browser and server form validation.
 - MySQL-backed accounts, hashed passwords, CSRF-protected forms, server-side PHP sessions, session ID rotation, remember-me, and POST-only logout.
 - Dashboard displays the user's name/email, a welcome message, header/footer, and a clock updated each second in the visitor's browser timezone.
 - Authentication attempts are limited to 30 per IP per 15 minutes through MySQL.
 - Legacy PBKDF2-SHA256 password hashes from Flask/TypeScript remain supported. Eligible hashes are upgraded after login. New passwords use PHP `PASSWORD_DEFAULT`, with an 8–72 byte limit.
 - Password recovery uses Gmail SMTP (STARTTLS, port 587) with sender `tariq.arfan@gmail.com`. `SMTP_USERNAME` and `SMTP_PASSWORD` are GitHub secrets. PHPMailer is vendored under protected `public/includes/phpmailer/`.
 - Reset links contain 32 random bytes, expire after 30 minutes, are stored as SHA-256 hashes, and are consumed transactionally once. One current token per account; a 60-second account cooldown limits email sends. Public responses do not disclose account existence. Resetting a password invalidates existing dashboard sessions.
-- `public/forgot-password.php`, `public/reset-password.php`, `public/includes/reset.php`, and `public/includes/mailer.php` implement reset and the blue HTML/plain-text email. Production reset links use the configured canonical app URL, never the incoming Host header.
+- `public/forgot-password.php`, `public/reset-password.php`, `public/includes/reset.php`, and `public/includes/mailer.php` implement reset and the cedar-green HTML/plain-text email. Production reset links use the configured canonical app URL, never the incoming Host header.
 
 ## Active source files
 

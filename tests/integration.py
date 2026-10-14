@@ -98,7 +98,7 @@ try:
     assert message['Subject'] == 'Reset your Cedar password'
     plain = message.get_body(preferencelist=('plain',)).get_content()
     themed = message.get_body(preferencelist=('html',)).get_content()
-    assert '#12316b' in themed and 'Test &lt;User&gt;' in themed
+    assert '#183c30' in themed and 'Test &lt;User&gt;' in themed
     reset_token = re.search(r'https://reset.example.com/reset-password.php\?token=([a-f0-9]{64})', plain)[1]
     request('forgot-password.php', {'email': email, 'csrf_token': csrf})
     assert mailbox.empty(), 'Account cooldown must prevent repeated emails'
