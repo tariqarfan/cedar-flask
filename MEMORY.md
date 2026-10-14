@@ -22,7 +22,9 @@ The user has authorized automatic publication after code changes: run the releva
 - Dashboard displays the user's name/email, a welcome message, header/footer, and a clock updated each second in the visitor's browser timezone.
 - Authentication attempts are limited to 30 per IP per 15 minutes through MySQL.
 - Legacy PBKDF2-SHA256 password hashes from Flask/TypeScript remain supported. Eligible hashes are upgraded after login. New passwords use PHP `PASSWORD_DEFAULT`, with an 8–72 byte limit.
-- Password recovery is not implemented; its button explains that it is unavailable.
+- Password recovery uses Gmail SMTP (STARTTLS, port 587) with sender `tariq.arfan@gmail.com`. `SMTP_USERNAME` and `SMTP_PASSWORD` are GitHub secrets. PHPMailer is vendored under protected `public/includes/phpmailer/`.
+- Reset links contain 32 random bytes, expire after 30 minutes, are stored as SHA-256 hashes, and are consumed transactionally once. One current token per account; a 60-second account cooldown limits email sends. Public responses do not disclose account existence. Resetting a password invalidates existing dashboard sessions.
+- `public/forgot-password.php`, `public/reset-password.php`, `public/includes/reset.php`, and `public/includes/mailer.php` implement reset and the blue HTML/plain-text email. Production reset links use the configured canonical app URL, never the incoming Host header.
 
 ## Active source files
 
@@ -54,7 +56,7 @@ The user has authorized automatic publication after code changes: run the releva
 - Upload only the contents of `public/`, including hidden `.htaccess` files. Do not upload the repository root.
 - Deployment uploads access protections first, writes each file through a temporary upload name, and renames it. It does not delete unrelated remote files.
 
-Production database: host `localhost`, port `3306`, name/user `u488328344_kabir`. Tables `cedar_users` and `cedar_login_limits` are created if missing; existing users are preserved. Database create/read/write/delete permissions are required.
+Production database: host `localhost`, port `3306`, name/user `u488328344_kabir`. Tables `cedar_users`, `cedar_login_limits`, and `cedar_password_resets` are created if missing; existing users are preserved. Database create/read/write/delete permissions are required.
 
 **Do not put passwords, tokens, session identifiers, or private configuration contents in this file or Git.** Passwords are configured as GitHub Actions secrets and in the ignored local PHP configuration. Base64 in generated PHP configuration is serialization, not encryption; access protection remains essential.
 
@@ -62,7 +64,7 @@ Production database: host `localhost`, port `3306`, name/user `u488328344_kabir`
 
 - GitHub CLI is installed at `/opt/homebrew/bin/gh` and was authenticated as `tariqarfan` at last verification. Check current authentication before relying on it.
 - `origin` points to the repository above; Git HTTPS authentication was configured with `gh auth setup-git`.
-- Configured repository secrets: `FTP_SERVER`, `FTP_PORT`, `FTP_TLS_HOSTNAME`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_DIRECTORY`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
+- Configured repository secrets: `FTP_SERVER`, `FTP_PORT`, `FTP_TLS_HOSTNAME`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_DIRECTORY`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `SMTP_USERNAME`, `SMTP_PASSWORD`.
 - Workflow checks run on pull requests, pushes to `main`, and manual dispatch. Deployment runs only for `main`, after checks pass, using the `production` environment.
 - CI runs PHP syntax checks, password compatibility checks, and real HTTP authentication tests against a disposable MySQL 8.4 service.
 - Pushes to `main` deploy to the live production domain. A memory/documentation commit also triggers the current workflow.

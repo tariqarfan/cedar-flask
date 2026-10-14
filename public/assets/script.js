@@ -24,6 +24,3 @@ form?.addEventListener('submit', event => {
   validateConfirmation();
   if (!form.reportValidity()) event.preventDefault();
 });
-document.querySelector('#forgot')?.addEventListener('click', () => {
-  status.textContent = 'Password recovery is not available yet. Please contact your administrator.';
-});

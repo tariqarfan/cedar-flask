@@ -34,6 +34,7 @@ function db(): PDO {
     $db = new PDO('mysql:host=' . $config['db_host'] . ';port=' . ($config['db_port'] ?? 3306) . ';dbname=' . $config['db_name'] . ';charset=utf8mb4', $config['db_user'], $config['db_password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false]);
     $db->exec('CREATE TABLE IF NOT EXISTS cedar_users (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100) NOT NULL, email VARCHAR(254) NOT NULL UNIQUE, password_hash VARCHAR(255) NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
     $db->exec('CREATE TABLE IF NOT EXISTS cedar_login_limits (ip_hash CHAR(64) PRIMARY KEY, attempts INT NOT NULL, window_start BIGINT NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
+    $db->exec('CREATE TABLE IF NOT EXISTS cedar_password_resets (user_id BIGINT UNSIGNED PRIMARY KEY, token_hash CHAR(64) NOT NULL UNIQUE, expires_at BIGINT NOT NULL, created_at BIGINT NOT NULL, INDEX reset_expiry (expires_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4');
     return $db;
 }
 function rate_limit(): void {
@@ -48,6 +49,7 @@ function rate_limit(): void {
     if (random_int(1, 100) === 1) { $statement = $db->prepare('DELETE FROM cedar_login_limits WHERE window_start < ?'); $statement->execute([$now - 900]); }
 }
 require __DIR__ . '/password.php';
+require __DIR__ . '/reset.php';
 $messages = $_SESSION['messages'] ?? [];
 unset($_SESSION['messages']);
 function handle_login(): void {
@@ -65,9 +67,10 @@ function handle_login(): void {
     if (!$user || !verify_password($password, $user['password_hash'])) { http_response_code(401); $messages = ['Invalid email or password.']; return; }
     if (strlen($password) <= 72 && (str_starts_with($user['password_hash'], 'pbkdf2:') || password_needs_rehash($user['password_hash'], PASSWORD_DEFAULT))) {
         $statement = db()->prepare('UPDATE cedar_users SET password_hash = ? WHERE id = ?');
-        $statement->execute([password_hash($password, PASSWORD_DEFAULT), $user['id']]);
+        $user['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+        $statement->execute([$user['password_hash'], $user['id']]);
     }
-    session_regenerate_id(true); $_SESSION = ['user_id' => $user['id'], 'expires' => time() + (field('remember') === 'on' ? 604800 : 86400)];
+    session_regenerate_id(true); $_SESSION = ['user_id' => $user['id'], 'auth_hash' => hash('sha256', $user['password_hash']), 'expires' => time() + (field('remember') === 'on' ? 604800 : 86400)];
     if (field('remember') === 'on') { $params = session_get_cookie_params(); setcookie(session_name(), session_id(), ['expires' => time() + 604800, 'path' => $params['path'], 'secure' => $params['secure'], 'httponly' => true, 'samesite' => 'Lax']); }
     redirect('dashboard.php');
 }
@@ -95,7 +98,7 @@ function handle_register(): void {
 function handle_dashboard(): void {
     global $user;
     if (!isset($_SESSION['user_id'])) redirect('login.php');
-    $statement = db()->prepare('SELECT name, email FROM cedar_users WHERE id = ?');
+    $statement = db()->prepare('SELECT name, email, password_hash FROM cedar_users WHERE id = ?');
     $statement->execute([$_SESSION['user_id']]); $user = $statement->fetch();
-    if (!$user) { $_SESSION = []; redirect('login.php'); }
+    if (!$user || !hash_equals($_SESSION['auth_hash'] ?? '', hash('sha256', $user['password_hash']))) { $_SESSION = []; session_regenerate_id(true); redirect('login.php'); }
 }

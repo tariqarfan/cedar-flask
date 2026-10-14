@@ -66,13 +66,16 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         run: |
           python - <<'PY'
           import os, json, base64
           from pathlib import Path
-          for name in ('DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'):
+          for name in ('DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'SMTP_USERNAME', 'SMTP_PASSWORD'):
               if not os.environ.get(name): raise SystemExit(f'Missing secret: {name}')
           config = {key.lower(): os.environ[key] for key in ('DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD')}
+          config.update(smtp_username=os.environ['SMTP_USERNAME'], smtp_password=os.environ['SMTP_PASSWORD'], app_url='https://kabir.marmareen.com')
           config.update(db_port=int(os.environ.get('DB_PORT') or 3306), cookie_secure=True)
           payload = base64.b64encode(json.dumps(config).encode()).decode()
           Path('public/includes/config.php').write_text("<?php\nreturn json_decode(base64_decode('" + payload + "'), true, 512, JSON_THROW_ON_ERROR);\n")

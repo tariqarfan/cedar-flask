@@ -27,6 +27,8 @@ Repository secrets required:
 | `DB_NAME` | Hostinger database name |
 | `DB_USER` | Hostinger database user |
 | `DB_PASSWORD` | Database password |
+| `SMTP_USERNAME` | Gmail sender address |
+| `SMTP_PASSWORD` | Gmail app password (without spaces) |
 
 Manage secrets at Settings → Secrets and variables → Actions, or with `gh secret set NAME` (enter the value at the prompt). FTPS requires a valid server certificate; use the actual FTP hostname rather than a proxied domain. Deployment does not delete unrelated remote files. If an earlier `index.html` exists, `DirectoryIndex index.php` selects the PHP entry point.
 
@@ -45,4 +47,4 @@ php tests/password.php
 find public -name '*.php' -exec php -l {} \;
 ```
 
-Password recovery is not implemented. New passwords accept 8–72 bytes to match PHP's default bcrypt limit. The live clock uses the visitor's browser timezone. The old static `dist/` and Sites manifest are historical files and are not deployed by this workflow.
+Password recovery sends a blue-themed HTML email with a plain-text alternative via Gmail SMTP, using PHPMailer. Configure `SMTP_USERNAME` and `SMTP_PASSWORD` as repository secrets. Links expire in 30 minutes, are single-use, and invalidate prior sign-ins after a successful reset. The app also creates `cedar_password_resets`. New passwords accept 8–72 bytes to match PHP's default bcrypt limit. The live clock uses the visitor's browser timezone. The old static `dist/` and Sites manifest are historical files and are not deployed by this workflow.
