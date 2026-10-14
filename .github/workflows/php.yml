@@ -1,0 +1,89 @@
+name: Check and deploy PHP
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: php-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: test-root-password
+          MYSQL_DATABASE: cedar_test
+          MYSQL_USER: cedar_test
+          MYSQL_PASSWORD: test-only-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql
+          coverage: none
+      - name: Check PHP syntax
+        run: find public -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Check password compatibility
+        run: php tests/password.php
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test PHP and MySQL authentication
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: cedar_test
+          DB_USER: cedar_test
+          DB_PASSWORD: test-only-password
+        run: python tests/integration.py
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate private database configuration
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import os, json, base64
+          from pathlib import Path
+          for name in ('DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'):
+              if not os.environ.get(name): raise SystemExit(f'Missing secret: {name}')
+          config = {key.lower(): os.environ[key] for key in ('DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD')}
+          config.update(db_port=int(os.environ.get('DB_PORT') or 3306), cookie_secure=True)
+          payload = base64.b64encode(json.dumps(config).encode()).decode()
+          Path('public/includes/config.php').write_text("<?php\nreturn json_decode(base64_decode('" + payload + "'), true, 512, JSON_THROW_ON_ERROR);\n")
+          PY
+      - name: Upload using FTPS
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIRECTORY: ${{ secrets.FTP_DIRECTORY }}
+        run: python scripts/deploy.py
+      - name: Verify login page
+        run: curl --fail --retry 3 --retry-delay 5 https://kabir.marmareen.com/login.php -o /dev/null

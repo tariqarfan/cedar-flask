@@ -1,5 +1,0 @@
-<!doctype html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Your account — Cedar</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
-<body><main class="form-wrap"><span class="small-label">YOUR CEDAR ACCOUNT</span><h2>Welcome, {{ user.name }}.</h2><p class="subtitle">You’re signed in as {{ user.email }}.</p><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="submit" type="submit">Sign out <span>→</span></button></form></main></body>
-</html>
